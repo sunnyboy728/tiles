@@ -8,10 +8,10 @@
 
 import UIKit
 
-let rows:Int = 3
-let columns:Int = 5
+let rows:Int = 10
+let columns:Int = 10
 
-let screenRows:Int = 5
+let screenRows:Int = 3
 let screenColumns:Int = 5
 
 let top:Int = ((screenRows - 1) / 2 - 1) * screenColumns + ((screenColumns - 1) / 2)
@@ -21,10 +21,29 @@ let bottom:Int = ((screenRows - 1) / 2 + 1) * screenColumns + ((screenColumns - 
 
 class ViewController: UIViewController
 {
+    @IBOutlet var tileImg1: UIImageView!
+    @IBOutlet var tileImg2: UIImageView!
+    @IBOutlet var tileImg3: UIImageView!
+    @IBOutlet var tileImg4: UIImageView!
+    @IBOutlet var tileImg5: UIImageView!
+    @IBOutlet var tileImg6: UIImageView!
+    @IBOutlet var tileImg7: UIImageView!
+    @IBOutlet var tileImg8: UIImageView!
+    @IBOutlet var tileImg9: UIImageView!
+    @IBOutlet var tileImg10: UIImageView!
+    @IBOutlet var tileImg11: UIImageView!
+    @IBOutlet var tileImg12: UIImageView!
+    @IBOutlet var tileImg13: UIImageView!
+    @IBOutlet var tileImg14: UIImageView!
+    @IBOutlet var tileImg15: UIImageView!
+    
+    var tileImgs = [UIImageView]()
+    
     override func viewDidLoad()
     {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        tileImgs = [tileImg1, tileImg2, tileImg3, tileImg4, tileImg5, tileImg6, tileImg7, tileImg8, tileImg9, tileImg10, tileImg11, tileImg12, tileImg13, tileImg14, tileImg15]
     }
 
     override func didReceiveMemoryWarning()
@@ -33,21 +52,17 @@ class ViewController: UIViewController
         // Dispose of any resources that can be recreated.
     }
     
-    var tileImgs:anyValueStorage<UIImage> = anyValueStorage(@IBOutlet var tileImg1: UIImageView!, @IBOutlet var tileImg2: UIImageView!, @IBOutlet var tileImg3: UIImageView!, @IBOutlet var tileImg4: UIImageView!, @IBOutlet var tileImg5: UIImageView!, @IBOutlet var tileImg6: UIImageView!, @IBOutlet var tileImg7: UIImageView!, @IBOutlet var tileImg8: UIImageView!, @IBOutlet var tileImg9: UIImageView!, @IBOutlet var tileImg10: UIImageView!, @IBOutlet var tileImg11: UIImageView!, @IBOutlet var tileImg12: UIImageView!, @IBOutlet var tileImg13: UIImageView!, @IBOutlet var tileImg14: UIImageView!, @IBOutlet var tileImg15: UIImageView!)
-    
+    //var tileImgs:anyValueStorage<UIImage> = anyValueStorage()
     var myMap = Map(numRows:rows, numColumns:columns, numScreenRows:screenRows, numScreenColumns:screenColumns)
     
-    var myCurrentX = 2
-    var myCurrentY = 2
-    
-    
+    var myCurrentRow = 1
+    var myCurrentColumn = 2
     
     @IBAction func clickTile(sender:UIButton)
     {
-        var currentPosition:Int = myCurrentX + myCurrentY * screenColumns
-        PositionControl.correctOvergo(map:myMap, row:&myCurrentX, column:&myCurrentY)
-        PositionControl.updatePosition(position:currentPosition, row:&myCurrentY, column:&myCurrentX)
-        myMap.drawScreen(rowNum:myCurrentX, columnNum:myCurrentY, images:tileImgs)
+        PositionControl.updatePosition(position:myCurrentRow + myCurrentColumn * screenColumns, row:&myCurrentColumn, column:&myCurrentRow)
+        PositionControl.correctOvergo(map:myMap, row:&myCurrentRow, column:&myCurrentColumn)
+        myMap.drawScreen(rowNum:myCurrentRow, columnNum:myCurrentColumn, images:&tileImgs)
     }
 }
 
@@ -97,31 +112,30 @@ class Map
             var newArray = Array<Int>()
             for row in 0...numRows - 1
             {
-                newArray.append(getRandomNumber(range:0...2))
+                newArray.append(getRandomNumber(range:0...1))
             }
             map.append(newArray)
         }
     }
     
-    func setImage(#tileImageNum:Int, inputTileImageType:Int, images:anyValueStorage<UIImage>)
+    func setImage(#tileImageNum:Int, inputTileImageType:Int, inout images:[UIImageView])
     {
         var tileImageType:String = ""
         switch inputTileImageType
         {
             case 0 :
                 tileImageType = "Regular"
-                break;
+                break
             case 1 :
                 tileImageType = "Mountain"
-                break;
+                break
             case 2 :
                 tileImageType = "Forest"
-                break;
+                break
             default :
-                break;
+                break
         }
-        
-        images.setForIndex(index: tileImageNum, value:UIImage(named:tileImageType)!)
+        images[tileImageNum].image = UIImage(named:tileImageType)
     }
     
     func getRows() -> Int
@@ -134,13 +148,11 @@ class Map
         return columns
     }
         
-    func drawScreen(#rowNum:Int, columnNum:Int, images:anyValueStorage<UIImage>)
+    func drawScreen(#rowNum:Int, columnNum:Int, inout images:[UIImageView])
     {
-        var rowAndColumnController:Int = 0
-        for imageNum in 0...screenRows * screenColumns
+        for imageNum in 0...self.screenRows * self.screenColumns - 1
         {
-            self.setImage(tileImageNum:imageNum, inputTileImageType:self.map[(rowAndColumnController / 3) - (self.screenColumns - 1) / 2][(rowAndColumnController % 3) - (self.screenRows - 1) / 2], images:images)
-            rowAndColumnController++
+            self.setImage(tileImageNum:imageNum, inputTileImageType:self.map[columnNum - (screenColumns - 1) / 2 + (imageNum % screenRows)][rowNum - (screenRows - 1) / 2 + (imageNum % screenColumns)], images:&images)
         }
     }
     subscript(#row:Int, #column:Int) -> Int
